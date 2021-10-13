@@ -3,17 +3,22 @@ import {
   fetchContactResolve,
   fetchContactReject,
   fetchAddContact,
+  fetchAddContactResolve,
   fetchAddContactReject,
   fetchRemoveContact,
+  fetchRemoveContactResolve,
   fetchRemoveContactReject,
 } from '../slice/slice';
 
 export const getPhoneContact = () => async dispatch => {
   dispatch(fetchContact());
-  await fetch(`http://localhost:3000/contacts`)
-    .then(response => response.json())
-    .then(response => dispatch(fetchContactResolve(response)))
-    .catch(error => dispatch(fetchContactReject(error.message)));
+  try {
+    await fetch(`http://localhost:3000/contacts`)
+      .then(response => response.json())
+      .then(response => dispatch(fetchContactResolve(response)));
+  } catch (error) {
+    dispatch(fetchContactReject(error.message));
+  }
 };
 
 export const addContactAsync = contact => async dispatch => {
@@ -25,10 +30,15 @@ export const addContactAsync = contact => async dispatch => {
     body: JSON.stringify(contact),
   };
   dispatch(fetchAddContact());
-  const response = await fetch(`http://localhost:3000/contacts`, requestOptions)
-    .then(response => response.json())
-    .catch(error => dispatch(fetchAddContactReject(error.message)));
-  dispatch(getPhoneContact(response));
+  try {
+    const data = await fetch(
+      `http://localhost:3000/contacts`,
+      requestOptions,
+    ).then(response => response.json());
+    dispatch(fetchAddContactResolve(data));
+  } catch (error) {
+    dispatch(fetchAddContactReject(error.message));
+  }
 };
 
 export const removeContactAsync = id => async dispatch => {
@@ -36,11 +46,12 @@ export const removeContactAsync = id => async dispatch => {
     method: 'DELETE',
   };
   dispatch(fetchRemoveContact());
-  const data = await fetch(
-    `http://localhost:3000/contacts/${id}`,
-    requestOptions,
-  )
-    .then(response => response.json())
-    .catch(error => dispatch(fetchRemoveContactReject(error.message)));
-  dispatch(getPhoneContact(data));
+  try {
+    await fetch(`http://localhost:3000/contacts/${id}`, requestOptions).then(
+      response => response.json(),
+    );
+    dispatch(fetchRemoveContactResolve(id));
+  } catch (error) {
+    dispatch(fetchRemoveContactReject(error.message));
+  }
 };

@@ -24,6 +24,7 @@ const contacts = createSlice({
       items: [],
       error: action.payload,
     }),
+
     fetchAddContact: state => ({
       ...state,
       isLoading: true,
@@ -31,7 +32,7 @@ const contacts = createSlice({
     fetchAddContactResolve: (state, action) => ({
       ...state,
       isLoading: false,
-      items: action.payload,
+      items: [...state.items, action.payload],
     }),
     fetchAddContactReject: (state, action) => ({
       ...state,
@@ -39,6 +40,7 @@ const contacts = createSlice({
       items: [],
       error: action.payload,
     }),
+
     fetchRemoveContact: state => ({
       ...state,
       isLoading: true,
@@ -46,7 +48,7 @@ const contacts = createSlice({
     fetchRemoveContactResolve: (state, action) => ({
       ...state,
       isLoading: false,
-      items: action.payload,
+      items: state.items.filter(({ id }) => id !== action.payload),
     }),
     fetchRemoveContactReject: (state, action) => ({
       ...state,
